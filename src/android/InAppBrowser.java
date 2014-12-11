@@ -71,6 +71,7 @@ public class InAppBrowser extends CordovaPlugin {
     // private static final String BLANK = "_blank";
     private static final String EXIT_EVENT = "exit";
     private static final String LOCATION = "location";
+    private static final String EDITABLE_LOCATION = "editablelocation";
     private static final String HIDDEN = "hidden";
     private static final String LOAD_START_EVENT = "loadstart";
     private static final String LOAD_STOP_EVENT = "loadstop";
@@ -86,6 +87,7 @@ public class InAppBrowser extends CordovaPlugin {
     private boolean openWindowHidden = false;
     private boolean clearAllCache= false;
     private boolean clearSessionCache=false;
+    private boolean editableLocationBar = false;
 
     /**
      * Executes the request and returns PluginResult.
@@ -402,6 +404,14 @@ public class InAppBrowser extends CordovaPlugin {
         return this.showLocationBar;
     }
 
+    /**
+     * Should we make the location bar editable?
+     * @return boolean
+     */
+    private boolean getEditableLocationBar() {
+        return this.editableLocationBar;
+    }
+
     private InAppBrowser getInAppBrowser(){
         return this;
     }
@@ -433,6 +443,10 @@ public class InAppBrowser extends CordovaPlugin {
                 if (cache != null) {
                     clearSessionCache = cache.booleanValue();
                 }
+            }
+            Boolean editableLocation = features.get(EDITABLE_LOCATION);
+            if(editableLocation != null) {
+                editableLocationBar = editableLocation.booleanValue();
             }
         }
         
@@ -541,7 +555,10 @@ public class InAppBrowser extends CordovaPlugin {
                 edittext.setText(url);
                 edittext.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
                 edittext.setImeOptions(EditorInfo.IME_ACTION_GO);
-                edittext.setInputType(InputType.TYPE_NULL); // Will not except input... Makes the text NON-EDITABLE
+
+                if(!getEditableLocationBar()) {
+                    edittext.setInputType(InputType.TYPE_NULL); // Will not except input... Makes the text NON-EDITABLE
+                }
                 edittext.setOnKeyListener(new View.OnKeyListener() {
                     public boolean onKey(View v, int keyCode, KeyEvent event) {
                         // If the event is a key-down event on the "enter" button
@@ -625,6 +642,7 @@ public class InAppBrowser extends CordovaPlugin {
                     // Add our toolbar to our main view/layout
                     main.addView(toolbar);
                 }
+
 
                 // Add our webview to our main view/layout
                 main.addView(inAppWebView);
